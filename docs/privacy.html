@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zásady ochrany soukromí &ndash; Fake &amp; Dezinfo Alert</title>
+<link rel="icon" href="favicon.ico">
+<style>
+  :root {
+    --bg: #f7f8fa; --bg-alt: #ffffff; --text: #1c2024; --text-muted: #5b6470;
+    --border: #e3e6ea; --accent-2: #2e7d32; --link: #1a6f43;
+    --card-shadow: 0 2px 10px rgba(20, 20, 30, 0.06);
+  }
+  html[data-theme="dark"] {
+    --bg: #14171a; --bg-alt: #1c2126; --text: #eef1f4; --text-muted: #a3adb8;
+    --border: #2b3138; --accent-2: #55c56a; --link: #6fd694;
+    --card-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  a { color: var(--link); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  header.top { border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; max-width: 760px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .brand img { width: 28px; height: 28px; object-fit: contain; }
+  #theme-toggle {
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  main { padding: 40px 0 60px; }
+  h1 { font-size: 28px; margin-bottom: 4px; }
+  .updated { color: var(--text-muted); font-size: 13.5px; margin-bottom: 32px; }
+  h2 { font-size: 19px; margin-top: 34px; }
+  ul.plain { padding-left: 20px; }
+  ul.plain li { margin-bottom: 8px; font-size: 15px; }
+  p { font-size: 15px; }
+  .card {
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; box-shadow: var(--card-shadow); margin: 20px 0;
+  }
+  footer { border-top: 1px solid var(--border); padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="topbar">
+    <div class="brand"><img src="img/logo-icon.png" alt=""> Fake &amp; Dezinfo Alert</div>
+    <button id="theme-toggle" aria-label="Přepnout tmavý/světlý režim">🌙 Tmavý režim</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>Zásady ochrany soukromí</h1>
+  <p class="updated">Naposledy aktualizováno: 4. 7. 2026</p>
+
+  <p>
+    Fake &amp; Dezinfo Alert je rozšíření pro Chrome a Firefox, které porovnává
+    navštívené weby (a YouTube kanály) s veřejným seznamem
+    <a href="https://www.konspiratori.sk" target="_blank" rel="noopener">konspiratori.sk</a>.
+    Tato stránka vysvětluje, jaká data rozšíření zpracovává a jak.
+  </p>
+
+  <div class="card">
+    <strong>Stručně:</strong> rozšíření nikam neodesílá vaši historii prohlížení
+    ani žádné osobní údaje. Veškeré porovnávání navštívených adres probíhá
+    lokálně ve vašem prohlížeči.
+  </div>
+
+  <h2>Co rozšíření dělá</h2>
+  <ul class="plain">
+    <li>Jednou za 6 hodin stáhne aktuální veřejný seznam webů a YouTube kanálů z konspiratori.sk (soubor <code>mixed_zoznam.csv</code>) a uloží ho lokálně do úložiště prohlížeče (<code>chrome.storage.local</code>).</li>
+    <li>Při návštěvě stránky porovná její doménu (případně ID YouTube kanálu) s tímto lokálně uloženým seznamem.</li>
+    <li>Pokud dojde ke shodě, zobrazí varovný banner, nebo (v režimu &bdquo;Blokování&ldquo;) přesměruje na konspiratori.sk.</li>
+    <li>Ukládá jen vaše nastavení režimu (varování/blokování) &ndash; lokálně, ve vašem prohlížeči.</li>
+  </ul>
+
+  <h2>Co rozšíření nedělá</h2>
+  <ul class="plain">
+    <li>Neodesílá adresy navštívených stránek ani jinou historii prohlížení na žádný server.</li>
+    <li>Nepoužívá žádnou analytiku ani sledování chování uživatele.</li>
+    <li>Neprodává ani nesdílí žádná data třetím stranám.</li>
+    <li>Nevyžaduje registraci ani žádné osobní údaje.</li>
+  </ul>
+
+  <h2>Síťová komunikace</h2>
+  <p>
+    Jediné pravidelné síťové spojení, které rozšíření vytváří, je stažení
+    veřejného seznamu z <code>konspiratori.sk</code>. Toto spojení neobsahuje
+    žádné informace o vás ani o vašem prohlížení &ndash; jde o stažení jednoho
+    veřejně dostupného souboru, stejně jako by ho stáhl kdokoliv jiný.
+  </p>
+
+  <h2>Oprávnění, která rozšíření vyžaduje</h2>
+  <ul class="plain">
+    <li><code>storage</code> &ndash; uložení staženého seznamu a vašeho nastavení lokálně v prohlížeči.</li>
+    <li><code>alarms</code> &ndash; pravidelné (jednou za 6 hodin) naplánované stažení aktuálního seznamu.</li>
+    <li><code>host_permissions</code> (přístup ke všem webům) &ndash; nutné k tomu, aby rozšíření mohlo na každé navštívené stránce zkontrolovat její doménu proti seznamu a případně zobrazit banner.</li>
+  </ul>
+
+  <h2>Zdroj dat</h2>
+  <p>
+    Seznam webů a YouTube kanálů pochází z projektu
+    <a href="https://www.konspiratori.sk" target="_blank" rel="noopener">konspiratori.sk</a>,
+    který provozuje NetSuccess, s.r.o. Zásady ochrany soukromí pro samotný web
+    konspiratori.sk najdete přímo na jejich stránkách.
+  </p>
+
+  <h2>Kontakt</h2>
+  <p>
+    Dotazy k tomuto rozšíření směřujte přes stránku projektu na GitHubu
+    (viz odkaz v patičce hlavní stránky).
+  </p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><a href="index.html">&larr; Zpět na hlavní stránku</a></p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var stored = localStorage.getItem('theme');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored || (prefersDark ? 'dark' : 'light');
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀️ Světlý režim' : '🌙 Tmavý režim';
+    }
+    apply(theme);
+    btn.addEventListener('click', function () {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', theme);
+      apply(theme);
+    });
+  })();
+</script>
+
+</body>
+</html>

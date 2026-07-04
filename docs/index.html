@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fake &amp; Dezinfo Alert v3 &ndash; rozšíření pro Chrome a Firefox</title>
+<meta name="description" content="Rozšíření pro Chrome a Firefox, které varuje před weby a YouTube kanály z veřejné databáze konspiratori.sk a umí je i blokovat.">
+<link rel="icon" href="favicon.ico">
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --bg-alt: #ffffff;
+    --text: #1c2024;
+    --text-muted: #5b6470;
+    --border: #e3e6ea;
+    --accent: #c0392b;
+    --accent-2: #2e7d32;
+    --link: #1a6f43;
+    --card-shadow: 0 2px 10px rgba(20, 20, 30, 0.06);
+    --code-bg: #eef1f4;
+  }
+  html[data-theme="dark"] {
+    --bg: #14171a;
+    --bg-alt: #1c2126;
+    --text: #eef1f4;
+    --text-muted: #a3adb8;
+    --border: #2b3138;
+    --accent: #ff6b57;
+    --accent-2: #55c56a;
+    --link: #6fd694;
+    --card-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    --code-bg: #262c33;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    transition: background .2s ease, color .2s ease;
+  }
+
+  a { color: var(--link); }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  header.top {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-alt);
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .version-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-2);
+    background: rgba(46,125,50,.12);
+    border-radius: 999px;
+    padding: 2px 9px;
+    vertical-align: middle;
+  }
+  .hero h1 .version-badge { font-size: 16px; margin-left: 4px; }
+  .brand img { width: 28px; height: 28px; object-fit: contain; }
+
+  #theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #theme-toggle:hover { border-color: var(--accent-2); }
+
+  .hero {
+    text-align: center;
+    padding: 56px 20px 40px;
+  }
+  .hero img.logo { width: 96px; height: auto; aspect-ratio: 1 / 1; object-fit: contain; margin-bottom: 16px; }
+  .hero h1 { font-size: 34px; margin: 0 0 10px; }
+  .hero p.tagline { color: var(--text-muted); font-size: 18px; max-width: 620px; margin: 0 auto 28px; }
+
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+  .btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 15px;
+  }
+  .btn-primary { background: var(--accent-2); color: #fff; }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+
+  .hero-shot {
+    max-width: 100%;
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border);
+  }
+
+  section { padding: 48px 0; border-top: 1px solid var(--border); }
+  section h2 { font-size: 24px; margin: 0 0 8px; }
+  section > p.lead { color: var(--text-muted); margin-top: 0; margin-bottom: 28px; max-width: 640px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 720px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: var(--card-shadow);
+  }
+  .card h3 { margin-top: 0; font-size: 17px; }
+  .card p { color: var(--text-muted); margin-bottom: 0; font-size: 14.5px; }
+  .card .pill {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .pill-warn { background: rgba(192,57,43,.12); color: var(--accent); }
+  .pill-block { background: rgba(46,125,50,.15); color: var(--accent-2); }
+
+  .shot {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow);
+    display: block;
+  }
+  figure { margin: 0; }
+  figcaption { font-size: 13px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+
+  .shot-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 720px) { .shot-gallery { grid-template-columns: 1fr; } }
+
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 4px 40px;
+    margin-bottom: 10px;
+    font-size: 14.5px;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  code, pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  code { padding: 2px 6px; }
+  pre { padding: 14px 16px; overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--text-muted); font-weight: 600; }
+
+  ul.plain { padding-left: 20px; }
+  ul.plain li { margin-bottom: 8px; font-size: 14.5px; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0 48px;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    text-align: center;
+  }
+  footer a { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="topbar">
+    <div class="brand">
+      <img src="img/logo-icon.png" alt="">
+      Fake &amp; Dezinfo Alert <span class="version-badge">v3</span>
+    </div>
+    <button id="theme-toggle" aria-label="Přepnout tmavý/světlý režim">🌙 Tmavý režim</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <img class="logo" src="img/logo-icon.png" alt="Logo Fake &amp; Dezinfo Alert">
+    <h1>Fake &amp; Dezinfo Alert <span class="version-badge">v3</span></h1>
+    <p class="tagline">
+      Rozšíření pro Chrome a Firefox, které varuje před weby a YouTube kanály
+      z veřejné databáze <a href="https://www.konspiratori.sk" target="_blank" rel="noopener">konspiratori.sk</a>
+      &ndash; a na přání je umí i rovnou blokovat.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#instalace">Jak nainstalovat</a>
+      <a class="btn btn-secondary" href="https://www.konspiratori.sk" target="_blank" rel="noopener">O databázi konspiratori.sk</a>
+    </div>
+    <img class="hero-shot" src="img/hero-banner-and-popup.png" alt="Varovný banner na sporném webu a popup rozšíření vedle sebe">
+  </div>
+</div>
+
+<section id="jak-funguje">
+  <div class="wrap">
+    <h2>Dva režimy, jeden přepínač</h2>
+    <p class="lead">Výchozí nastavení jen upozorňuje. Zablokovat vše je jedno kliknutí v popupu, kdykoliv se rozhodnete přitvrdit.</p>
+    <div class="grid-2">
+      <div class="card">
+        <span class="pill pill-warn">Výchozí</span>
+        <h3>Varování</h3>
+        <p>
+          Na stránce se sporným obsahem (nebo na YouTube kanálu ze seznamu) se
+          zobrazí zavíratelný červený banner s hodnocením 0&ndash;10 a odkazy
+          na konspiratori.sk a další fact-checkingové iniciativy. Stránka se
+          dál normálně načte, jen s upozorněním navrch.
+        </p>
+        <img src="img/banner-closeup.png" alt="Detail varovného banneru s odkazy na konspiratori.sk, Demagog.cz, Čeští Elfové a Manipulátoři.cz" style="width:100%; border-radius:10px; margin-top:14px; border:1px solid var(--border);">
+      </div>
+      <div class="card">
+        <span class="pill pill-block">Na vyžádání</span>
+        <h3>Blokování</h3>
+        <p>
+          Po kliknutí na &bdquo;Zablokovat vše&ldquo; v popupu se každá další
+          návštěva webu nebo YouTube kanálu ze seznamu automaticky přesměruje
+          na konspiratori.sk &ndash; místo stránky se rovnou zobrazí aktuální
+          seznam sporných webů.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="snimky">
+  <div class="wrap">
+    <h2>Jak to vypadá</h2>
+    <p class="lead">Ukázka varovného banneru přímo na reálném webu z databáze a popup s přehledem stavu seznamu.</p>
+
+    <figure style="margin-bottom: 28px;">
+      <img class="shot" src="img/banner-live-example.png" alt="Varovný banner zobrazený na webu parlamentnilisty.cz">
+      <figcaption>Banner se zobrazí přímo na navštívené stránce a jde jedním klikem zavřít.</figcaption>
+    </figure>
+
+    <div class="shot-gallery">
+      <figure>
+        <img class="shot" src="img/popup-collapsed.png" alt="Popup rozšíření se stavem seznamu a tlačítkem Zablokovat vše">
+        <figcaption>Popup ukazuje počet webů a YouTube kanálů v seznamu a čas poslední aktualizace.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="img/popup-expanded-resources.png" alt="Popup s rozbaleným seznamem dalších zdrojů proti dezinformacím">
+        <figcaption>Rozbalovací sekce s odkazy na české fact-checkingové a watchdogové weby.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="instalace">
+  <div class="wrap">
+    <h2>Instalace</h2>
+    <p class="lead">Rozšíření zatím není v Chrome Web Storu ani na addons.mozilla.org &ndash; instaluje se ručně ze zdrojové složky (tzv. &bdquo;rozbalené rozšíření&ldquo; / temporary add-on).</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Google Chrome</h3>
+        <ol class="steps">
+          <li>Otevřete <code>chrome://extensions</code></li>
+          <li>Zapněte <strong>Vývojářský režim</strong> (přepínač vpravo nahoře)</li>
+          <li>Klikněte na <strong>Načíst rozbalené</strong></li>
+          <li>Vyberte složku <code>Fake_and_Dezinfo_Alert-v3-Chrome</code></li>
+          <li>Připněte ikonu přes ikonu skládačky na liště</li>
+        </ol>
+        <img src="img/chrome-extensions-card.png" alt="Karta rozšíření v chrome://extensions se zapnutým přepínačem" style="width:100%; max-width:320px; display:block; margin:14px auto 0; border-radius:10px; border:1px solid var(--border);">
+      </div>
+      <div class="card">
+        <h3>Mozilla Firefox</h3>
+        <ol class="steps">
+          <li>Otevřete <code>about:debugging#/runtime/this-firefox</code></li>
+          <li>Klikněte na <strong>Načíst dočasný doplněk&hellip;</strong></li>
+          <li>Vyberte soubor <code>manifest.json</code> ve složce <code>Fake_and_Dezinfo_Alert-v3-Firefox</code></li>
+          <li>Připněte ikonu přes ikonu skládačky na liště</li>
+        </ol>
+        <p style="margin-top:12px;">Dočasný doplněk zmizí po zavření Firefoxu. Pro trvalou instalaci je potřeba nechat doplněk podepsat přes <a href="https://addons.mozilla.org/developers/" target="_blank" rel="noopener">Mozilla Developer Hub</a> (lze i jako neveřejný &bdquo;Unlisted&ldquo;).</p>
+      </div>
+    </div>
+    <p style="margin-top:20px; color: var(--text-muted); font-size: 14px;">
+      Po instalaci chvíli trvá, než se na pozadí stáhne aktuální seznam &ndash;
+      stav (počet webů a kanálů, čas poslední aktualizace) je vidět v popupu.
+    </p>
+  </div>
+</section>
+
+<section id="pod-kapotou">
+  <div class="wrap">
+    <h2>Co je pod kapotou</h2>
+    <p class="lead">Manifest V3 na obou prohlížečích, žádné závislosti, žádné odesílání historie prohlížení.</p>
+
+    <table>
+      <tr><th>Soubor</th><th>Co dělá</th></tr>
+      <tr>
+        <td><code>background.js</code></td>
+        <td>Service worker (Chrome) / event page (Firefox). Jednou za 6 hodin stáhne aktuální seznam z konspiratori.sk a uloží ho do <code>chrome.storage.local</code>. Při selhání ponechá poslední funkční kopii.</td>
+      </tr>
+      <tr>
+        <td><code>content.js</code></td>
+        <td>Běží na každé navštívené stránce. Porovná doménu (a na YouTube i ID kanálu) s uloženým seznamem a podle zvoleného režimu zobrazí banner nebo přesměruje pryč.</td>
+      </tr>
+      <tr>
+        <td><code>html.html</code> + <code>pops.js</code></td>
+        <td>Popup s přepínačem mezi varováním a blokováním, stavem seznamu a odkazy na další zdroje.</td>
+      </tr>
+      <tr>
+        <td><code>manifest.json</code></td>
+        <td>Manifest V3 &ndash; na Chromu <code>service_worker</code>, na Firefoxu <code>scripts</code> (event page); jinak identický.</td>
+      </tr>
+    </table>
+
+    <h3 style="margin-top:32px;">Zdroj dat</h3>
+    <p>Seznam se stahuje z oficiálního veřejného exportu konspiratori.sk určeného primárně pro vylučování reklamních umístění:</p>
+    <pre>https://konspiratori.sk/static/lists/mixed_zoznam.csv</pre>
+    <p style="color: var(--text-muted); font-size: 14.5px;">
+      Obsahuje weby i YouTube kanály v jednom CSV: doména, hodnocení, odkaz na
+      detail, URL YouTube kanálu, ID YouTube kanálu.
+    </p>
+
+    <h3 style="margin-top:32px;">Oprávnění</h3>
+    <ul class="plain">
+      <li><code>storage</code> &ndash; uložení staženého seznamu a nastavení uživatele</li>
+      <li><code>alarms</code> &ndash; pravidelné plánované stahování seznamu</li>
+      <li><code>host_permissions</code> (<code>http://*/*</code>, <code>https://*/*</code>) &ndash; potřeba pro kontrolní skript na každé stránce a stahování seznamu na pozadí</li>
+    </ul>
+    <p style="color: var(--text-muted); font-size: 14.5px;">
+      Rozšíření nikam neposílá historii prohlížení &ndash; porovnání probíhá čistě lokálně proti jednou staženému seznamu.
+    </p>
+  </div>
+</section>
+
+<section id="omezeni">
+  <div class="wrap">
+    <h2>Známá omezení</h2>
+    <ul class="plain">
+      <li>Detekce YouTube kanálu na stránkách s vlastním @handle nebo na stránkách videí se opírá o interní JSON data YouTube stránky &ndash; pokud YouTube změní strukturu stránky, může být potřeba detekci upravit.</li>
+      <li>V blokovacím režimu se přesměrování spouští asynchronně, takže na velmi rychlých stránkách se stránka může na zlomek sekundy zobrazit, než dojde k přesměrování.</li>
+      <li>Rozšíření zatím není podepsané ani publikované v žádném obchodě &ndash; instaluje se jen ve vývojářském režimu.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Data: <a href="https://www.konspiratori.sk" target="_blank" rel="noopener">konspiratori.sk</a> &middot;
+      Fact-checking: <a href="https://manipulatori.cz" target="_blank" rel="noopener">Manipulátoři.cz</a>,
+      <a href="https://demagog.cz" target="_blank" rel="noopener">Demagog.cz</a>,
+      <a href="https://www.cesti-elfove.cz" target="_blank" rel="noopener">Čeští Elfové</a>
+    </p>
+    <p>Fake &amp; Dezinfo Alert v3 &middot; Manifest V3 &middot; Chrome &amp; Firefox &middot; <a href="privacy.html">Zásady ochrany soukromí</a></p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('theme-toggle');
+    var stored = localStorage.getItem('theme');
+    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored || (prefersDark ? 'dark' : 'light');
+
+    function apply(t) {
+      root.setAttribute('data-theme', t);
+      btn.textContent = t === 'dark' ? '☀️ Světlý režim' : '🌙 Tmavý režim';
+    }
+
+    apply(theme);
+
+    btn.addEventListener('click', function () {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('theme', theme);
+      apply(theme);
+    });
+  })();
+</script>
+
+</body>
+</html>

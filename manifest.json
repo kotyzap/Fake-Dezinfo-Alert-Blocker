@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Fake & Dezinfo Alert",
+  "version": "3.0.0",
+  "description": "Rozšíření, které varuje před přístupem na fake a dezinformační weby a YouTube kanály dle veřejné databáze konspiratori.sk.",
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon.png"
+    },
+    "default_popup": "html.html"
+  },
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
